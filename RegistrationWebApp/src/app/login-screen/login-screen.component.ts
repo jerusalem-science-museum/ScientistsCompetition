@@ -38,9 +38,9 @@ export class LoginScreenComponent implements OnInit {
     this.signInVal = 'מתחבר...'
     this.auth.signIn(this.userForm.value['email'], this.userForm.value['password']) //using the auth service
       .then((res) => {
-        this.cookieService.set('User uid', res.uid);
+        this.cookieService.set('User uid', res.user.uid);
         this.cookieService.set('User login status', 'true');
-        this.db.loggedInUserUID = res.uid
+        this.db.loggedInUserUID = res.user.uid
         this.db.loggedIn = 'true';
         this.db.getLoggedInUser().then(() => {
           if (this.db.loggedInUser.type == 'בודק') {

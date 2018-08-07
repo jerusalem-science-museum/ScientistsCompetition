@@ -6,7 +6,8 @@ import { Project } from '../project';
 import { ExportUser } from '../export-user';
 import { ExportProject } from '../export-project';
 import { CompetitionSettings } from '../competition-settings';
-import * as firebase from 'firebase/app';
+import { firebase } from '@firebase/app'
+import '@firebase/database'
 
 @Injectable()
 export class DatabaseService {
@@ -42,7 +43,7 @@ export class DatabaseService {
   constructor(private afs: AngularFirestore) {
     //==========Connection to firebase table============//
     const settings = { timestampsInSnapshots: true };
-    afs.app.firestore().settings(settings);
+    afs.firestore.settings(settings);
     this.dataCollections = afs.collection<any>('usersInfo');
     this.projectCollections = afs.collection<any>('projectsInfo');
     this.settingsCollection = afs.collection<any>('CompetitionSettings');

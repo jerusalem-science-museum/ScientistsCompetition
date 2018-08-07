@@ -12,7 +12,8 @@ import { ExcelService } from '../services/excel.service';
 import { AuthService } from '../services/auth.service';
 import { Message } from '../message'
 import { MessageService } from '../services/message.service';
-import * as firebase from 'firebase/app';
+import { firebase } from '@firebase/app'
+import '@firebase/auth'
 
 
 @Pipe({
@@ -176,7 +177,7 @@ export class TableComponent implements OnInit {
                           firebase.auth()
                       .signInWithEmailAndPassword(this.db.usersList[TableLine].email, this.db.usersList[TableLine].password)
                       .then(function(user) {
-                          user.delete().then(function() {
+                          user.user.delete().then(function() {
                           }).catch(function(error) {
                             alert("שגיאה במחיקת המשתמש")
                           });

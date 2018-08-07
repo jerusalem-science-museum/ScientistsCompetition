@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from 'angularfire2/auth';
-import * as firebase from 'firebase/app';
+import { firebase } from '@firebase/app'
+import '@firebase/auth'
 import { Observable } from 'rxjs/Observable';
 import { Router } from '@angular/router';
 
@@ -20,7 +21,7 @@ export class AuthService {
 
   emailSignUp(email: string, password: string) //this method allows user to signup to the web-app with provided email and password.
   {
-    return this._firebaseAuth.auth.createUserWithEmailAndPassword(email, password);
+    return this._firebaseAuth.auth.createUserWithEmailAndPassword(email, password)
   }
 
   resetPassword(email: string) //this method allow an registered user to reset his password

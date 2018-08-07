@@ -114,22 +114,22 @@ export class RegistrationFormComponent {
     if (this.userform.valid) { // no validate errors
       this.signUpError = false;
       this.auth.emailSignUp(this.user.email, this.user.password) // sign up User
+        .then(res => {
+          if (this.signUpError == true)// condition to prevent error
+            return;
+          //successfully registered:
+          this.user.uid = res.user.uid; // sets the uid value in the attribute
+          this.db.addUserToDB(this.user); // add user to database
+          if(this.db.loggedIn == 'true' && this.db.loggedInUser.type == 'מנהל')
+              this.router.navigate(['manager']);
+          this.router.navigate(['loginScreen'])// go to the login screen
+        })
         .catch(error => {
           this.signUpError = true;
           if (error.code == 'auth/email-already-in-use') { // in case that email already in use
             alert("כתובת המייל נמצאת כבר בשימוש באתר. נא התחבר או השתמש בכתובת מייל אחרת");// error message
           }
           else { alert("כתובת דואר אלקטרוני אינה תקינה") }
-        })
-        .then((res) => {
-          if (this.signUpError == true)// condition to prevent error
-            return;
-          //successfully registered:
-          this.user.uid = res.uid; // sets the uid value in the attribute
-          this.db.addUserToDB(this.user); // add user to database
-          if(this.db.loggedIn == 'true' && this.db.loggedInUser.type == 'מנהל')
-              this.router.navigate(['manager']);
-          this.router.navigate(['loginScreen'])// go to the login screen
         })
     }
     else { // validate error
