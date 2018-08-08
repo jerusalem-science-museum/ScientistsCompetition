@@ -330,11 +330,13 @@ export class TableComponent implements OnInit {
       var str2 = this.router.parseUrl('/registrationForm;email='+this.db.projectsList[i].school_contact_mail+ '');
       this.obj += "<tr class="+i+"><td><a href=" + str + ">" + this.db.projectsList[i].project_name + "</a></td>";
       var date = new Date(this.db.projectsList[i].date);
+      var teacher = this.teacherList.find(x => x.email == this.db.projectsList[i].school_contact_mail);
+      var teacherName = teacher == undefined ? this.db.projectsList[i].school_contact_mail : teacher.name;
       this.obj += "<td>" + date.getDate().toString() + "/" + (date.getMonth() + 1).toString() + "/" + date.getFullYear().toString() + "</td>" +
         "<td>" + this.db.projectsList[i].type + "</td>" +
         "<td>" + this.db.projectsList[i].project_field + "</td>" +
         "<td>" + this.team + "</td>" +
-        "<td>" +"<a href=" + str2 + ">" + this.teacherList.find(x => x.email == this.db.projectsList[i].school_contact_mail).name + "</a></td>";
+        "<td>" +"<a href=" + str2 + ">" + teacherName + "</a></td>";
       if (this.db.projectsList[i].recommendation_file == null) {
         this.obj += "<td>לא קיים קובץ המלצה במערכת</td>"
       }
