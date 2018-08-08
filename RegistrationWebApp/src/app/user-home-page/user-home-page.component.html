@@ -73,7 +73,7 @@
                     <strong>סטאטוס הרשמה</strong>
                 </legend>
                 <div class="notice notice-info">
-                    <strong>{{workExists}}</strong>
+                    <a [routerLink]="[(this.userProject != undefined && this.userProject != 'not found') ? '/viewproject' : '/projectUpload']"><strong>{{workExists}}</strong></a>
                 </div>
                 <div *ngIf="this.userProject && emptyFields.length != 0">
                     <div class="notice notice-success">
