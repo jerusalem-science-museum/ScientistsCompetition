@@ -117,7 +117,7 @@ export class TableComponent implements OnInit {
                 else { this.exportUsersToExcel(); }
               });
               if (this.page == 1) {
-                this.title = "פרוייקטים בתחרות";
+                this.title = "פרוייקטים בתחרות (" + this.db.projectsList.length + ")";
                 for(var i=0;i<this.db.usersList.length;i++){
                   if(this.db.usersList[i].type == 'מורה'){this.teacherList.push({email:this.db.usersList[i].email,name:this.db.usersList[i].firstName+" "+this.db.usersList[i].lastName+" - "+this.db.usersList[i].email});}
                 }
@@ -294,7 +294,7 @@ export class TableComponent implements OnInit {
 
 
   handleChecker() {
-    this.obj = "<table class='table table-striped table-bordered' id='myTable'><thead><tr><th>שם פרוייקט</th><th>שלי?</th><th>איש קשר</th><th>פריט עבודה נוכחי</th>" +
+    this.obj = "<table class='table table-striped table-bordered' id='myTable'><thead><tr><th></th><th>שם פרוייקט</th><th>שלי?</th><th>איש קשר</th><th>פריט עבודה נוכחי</th>" +
       "<th>קובץ המלצה נוכחי</th><th>הערות למיון</th></tr></thead><tbody>";
     var myProjects = this.db.projectsList.filter((project) => (project.checkerMail != undefined && project.checkerMail.indexOf(this.db.loggedInUser.email) >= 0));
     var otherProjects = this.db.projectsList.filter((project) => (project.checkerMail == undefined || project.checkerMail.indexOf(this.db.loggedInUser.email) < 0));
@@ -302,7 +302,7 @@ export class TableComponent implements OnInit {
     for (var i = 0; i < projects.length; i++) {
       var isMine = (projects[i].checkerMail != undefined && projects[i].checkerMail.indexOf(this.db.loggedInUser.email) >= 0);
       var str = this.router.parseUrl('/viewproject;id=' + projects[i].project_name + '');
-      this.obj += "<tr><td><a href=" + str + ">" + projects[i].project_name + "</a></td>" + "<td>" + (isMine ? "כן" : "לא") + "</td>" +
+      this.obj += "<tr><td>"+(i+1)+"</td><td><a href=" + str + ">" + projects[i].project_name + "</a></td>" + "<td>" + (isMine ? "כן" : "לא") + "</td>" +
         "<td>" + projects[i].school_contact_mail + "</td>";
       if (projects[i].project_file == null) {
         this.obj += "<td>לא קיים פריט עבודה במערכת</td>"
@@ -324,13 +324,13 @@ export class TableComponent implements OnInit {
 
   handleMaster1() {
     this.createCheckersInputList();
-    this.obj = "<table class='table table-striped table-bordered' id='myTable'><thead><tr><th>שם פרוייקט</th><th>תאריך יצירה</th><th>סוג העבודה</th><th>תחום</th><th>חברי צוות</th>" +
+    this.obj = "<table class='table table-striped table-bordered' id='myTable'><thead><tr><th></th><th>שם פרוייקט</th><th>תאריך יצירה</th><th>סוג העבודה</th><th>תחום</th><th>חברי צוות</th>" +
       "<th>איש הקשר</th><th>המלצה</th><th>פריט עבודה נוכחי</th><th>בתחרות</th><th>הקצאת בודק</th><th>שיוך בודק</th><th>מחק פרוייקט</th></tr></thead><tbody>";
     for (var i = 0; i < this.db.projectsList.length; i++) {
       this.createTeam(i);
       var str = this.router.parseUrl('/viewproject;id=' + this.db.projectsList[i].project_name + '');
       var str2 = this.router.parseUrl('/registrationForm;email='+this.db.projectsList[i].school_contact_mail+ '');
-      this.obj += "<tr class="+i+"><td><a href=" + str + ">" + this.db.projectsList[i].project_name + "</a></td>";
+      this.obj += "<tr class="+i+"><td>"+(i+1)+"</td><td><a href=" + str + ">" + this.db.projectsList[i].project_name + "</a></td>";
       var date = new Date(this.db.projectsList[i].date);
       var teacher = this.teacherList.find(x => x.email == this.db.projectsList[i].school_contact_mail);
       var teacherName = teacher == undefined ? this.db.projectsList[i].school_contact_mail : teacher.name;
