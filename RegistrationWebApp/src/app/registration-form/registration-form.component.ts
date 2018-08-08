@@ -80,12 +80,46 @@ export class RegistrationFormComponent {
     //delay in order to wait for the getLoggedInUser function to recive the data
   }
 
+  public signIn(email, password) { //enables the sign in button function
+    console.log("signing in... " + email + password);
+    this.signInVal = 'מתחבר...'
+    return this.auth.signIn(email, password) //using the auth service
+      .then((res) => {
+        this.cookieService.set('User uid', res.user.uid);
+        this.cookieService.set('User login status', 'true');
+        this.db.loggedInUserUID = res.user.uid
+        this.db.loggedIn = 'true';
+        this.db.getLoggedInUser().then(() => {
+          if (this.db.loggedInUser.type == 'בודק') {
+            this.cookieService.set('checkerLoggedIn', 'true');
+            this.router.navigate(['checker']);
+          }
+          else if (this.db.loggedInUser.type == 'מנהל') {
+            this.cookieService.set('managerLoggedIn', 'true');
+            this.router.navigate(['manager'])
+          }
+          else if (this.db.loggedInUser.type == 'תלמיד') {
+            this.router.navigate(['projectUpload']);
+          }
+          else
+            this.router.navigate(['homepage'])
+        })
+      })
+      .catch((err) => {
+        this.signInVal = 'כניסה'
+        this.db.loggedIn = 'false';
+        this.db.loggedInUserUID = null;
+        this.logInError = true
+        this.cookieService.set('User uid', '');
+        this.cookieService.set('User login status', 'false');
+      }
+      );
+  }
+
   // on register user button click adds new user to Database according to the data that was collected from the registration form
   public registerUser() {
     for (var i = 0; i < this.db.usersList.length; i++){
-      console.log(this.db.usersList[i].userid)
       if (this.db.usersList[i].userid == this.user.userid){
-        console.log("id"+this.db.usersList[i].userid)
         this.signUpError = true;
         alert("תעודת זהות כבר קיימת במערכת")
         return;  
@@ -122,7 +156,9 @@ export class RegistrationFormComponent {
           this.db.addUserToDB(this.user); // add user to database
           if(this.db.loggedIn == 'true' && this.db.loggedInUser.type == 'מנהל')
               this.router.navigate(['manager']);
-          this.router.navigate(['loginScreen'])// go to the login screen
+          else {
+            this.signIn(this.user.email, this.user.password);
+          }
         })
         .catch(error => {
           this.signUpError = true;
