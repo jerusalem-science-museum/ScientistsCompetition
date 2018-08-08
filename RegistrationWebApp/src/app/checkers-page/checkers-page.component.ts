@@ -70,14 +70,16 @@ export class CheckersPageComponent implements OnInit {
   }
   public countProjects()
   {
-   var temp = this.db.loggedInUser.email;
-    for(var i=0; i<this.db.projectsList.length; i++)
-    {
-      if(temp == this.db.projectsList[i].checkerMail)
+    this.db.getLoggedInUser().then(() => {
+     var temp = this.db.loggedInUser.email;
+      for(var i=0; i<this.db.projectsList.length; i++)
       {
-        if(this.db.projectsList[i].check==undefined)
-          this.works++;
+        if(this.db.projectsList[i].checkerMail && this.db.projectsList[i].checkerMail.indexOf(temp) >= 0)
+        {
+          if(this.db.projectsList[i].check==undefined)
+            this.works++;
+        }
       }
-    }
+    });
   }
 }

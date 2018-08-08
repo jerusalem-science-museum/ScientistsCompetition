@@ -124,14 +124,14 @@ export class TableComponent implements OnInit {
                 this.handleMaster1();
                 $(".btn-labeled").click(res => {
                   var TableLine = res.currentTarget.name;
-                  if ($("input[id=" + TableLine + "]").val() == "") {
+                  if ($("select[id=" + TableLine + "]").val() == "") {
                     alert("נא לבחור בודק מהרשימה!");
                     return;
                   }
                   else {
-                    var selected = $("input[id=" + TableLine + "]").val();
-                    var str = selected.slice(selected.indexOf("-") + 1, selected.length);
-                    this.db.projectsList[TableLine].checkerMail = str;
+                    var selected = $("select[id=" + TableLine + "]").val();
+                    var checkers = selected.map((str) => str.slice(str.indexOf("-") + 1, str.length));
+                    this.db.projectsList[TableLine].checkerMail = checkers.join(',');
                     this.db.project = this.db.projectsList[TableLine];
                     this.db.updateProjectListing(this.db.projectsList[TableLine].project_name);
                   }
@@ -294,24 +294,26 @@ export class TableComponent implements OnInit {
 
 
   handleChecker() {
-    this.obj = "<table class='table table-striped table-bordered' id='myTable'><thead><tr><th>שם פרוייקט</th><th>איש קשר</th><th>פריט עבודה נוכחי</th>" +
+    this.obj = "<table class='table table-striped table-bordered' id='myTable'><thead><tr><th>שם פרוייקט</th><th>שלי?</th><th>איש קשר</th><th>פריט עבודה נוכחי</th>" +
       "<th>קובץ המלצה נוכחי</th><th>הערות למיון</th></tr></thead><tbody>";
-    for (var i = 0; i < this.db.projectsList.length; i++) {
-      if (this.db.loggedInUser.email == this.db.projectsList[i].checkerMail) {
-        var str = this.router.parseUrl('/viewproject;id=' + this.db.projectsList[i].project_name + '');
-        this.obj += "<tr><td><a href=" + str + ">" + this.db.projectsList[i].project_name + "</a></td>" +
-          "<td>" + this.db.projectsList[i].school_contact_mail + "</td>";
-        if (this.db.projectsList[i].project_file == null) {
-          this.obj += "<td>לא קיים פריט עבודה במערכת</td>"
-        }
-        else { this.obj += "<td><a href=" + this.db.projectsList[i].project_file.url + ">" + this.db.projectsList[i].project_file.name + "</a></td>" }
-        if (this.db.projectsList[i].recommendation_file == null) {
-          this.obj += "<td>לא קיים קובץ המלצה במערכת</td>"
-        }
-        else { this.obj += "<td><a href=" + this.db.projectsList[i].recommendation_file.url + ">" + this.db.projectsList[i].recommendation_file.name + "</a></td>" }
-        this.obj += "<td><button id=" + i + " class='btn btn-checker' data-toggle='modal' data-target='#myModal'>" +
-          "צפיה בהערות הבודק</button></td></tr>";
+    var myProjects = this.db.projectsList.filter((project) => (project.checkerMail != undefined && project.checkerMail.indexOf(this.db.loggedInUser.email) >= 0));
+    var otherProjects = this.db.projectsList.filter((project) => (project.checkerMail == undefined || project.checkerMail.indexOf(this.db.loggedInUser.email) < 0));
+    var projects = myProjects.concat(otherProjects);
+    for (var i = 0; i < projects.length; i++) {
+      var isMine = (projects[i].checkerMail != undefined && projects[i].checkerMail.indexOf(this.db.loggedInUser.email) >= 0);
+      var str = this.router.parseUrl('/viewproject;id=' + projects[i].project_name + '');
+      this.obj += "<tr><td><a href=" + str + ">" + projects[i].project_name + "</a></td>" + "<td>" + (isMine ? "כן" : "לא") + "</td>" +
+        "<td>" + projects[i].school_contact_mail + "</td>";
+      if (projects[i].project_file == null) {
+        this.obj += "<td>לא קיים פריט עבודה במערכת</td>"
       }
+      else { this.obj += "<td><a href=" + projects[i].project_file.url + ">" + projects[i].project_file.name + "</a></td>" }
+      if (projects[i].recommendation_file == null) {
+        this.obj += "<td>לא קיים קובץ המלצה במערכת</td>"
+      }
+      else { this.obj += "<td><a href=" + projects[i].recommendation_file.url + ">" + projects[i].recommendation_file.name + "</a></td>" }
+      this.obj += "<td><button id=" + i + " class='btn btn-checker' data-toggle='modal' data-target='#myModal'>" +
+        "צפיה בהערות הבודק</button></td></tr>";
     }
     this.obj += "</tbody></table>";
     $(".widget-content").html(this.obj);
@@ -350,12 +352,12 @@ export class TableComponent implements OnInit {
       this.obj += "<td width='105px'><button type='button' name="+i+" class='btn btn-info btn-circle'><i class='glyphicon glyphicon-ok'></i></button>&nbsp;" +
         "<button type='button' name=" + i + " class='btn btn-warning btn-circle'><i class='glyphicon glyphicon-remove'></i></button>" + this.inCompetition + "</td>";
       if (this.db.projectsList[i].checkerMail != undefined) {
-        this.obj += "<td><form><input list='chekers' id="+i+"></form><datalist id='chekers'>" + this.inputCheckerList + "<div>הבודק הנוכחי הינו:    " + this.db.projectsList[i].checkerMail + "</div>"+
-                    "<button name="+i+" class='btn btn-checker'>צפיה בהערות הבודק</button></td>";
+        this.obj += "<td><form><select id="+i+"  multiple size='4'>" + this.inputCheckerList + "</form><div>הבודק הנוכחי הינו:    " + this.db.projectsList[i].checkerMail + "</div>"+
+                    "<button name="+i+" class='btn btn-checker'>צפיה בהערות הבודקים</button></td>";
         this.obj += "<td><button type='button' name="+i+" class='btn btn-labeled btn-primary'>שייך</button></td>"
       }
       else {
-        this.obj += "<td><form><input list='chekers' id="+i+" placeholder='בחר בודק מהרשימה'></form><datalist id='chekers'>" + this.inputCheckerList + "</td>";
+        this.obj += "<td><form><select id="+i+"  multiple size='4'>" + this.inputCheckerList + "</td>";
         this.obj += "<td><button type='button' name="+i+" class='btn btn-labeled btn-primary'>שייך</button></td>"
       }
       this.obj += "<td><button type='button' name="+i+" class='delProject'>מחק</button></td></tr>";
@@ -385,11 +387,11 @@ export class TableComponent implements OnInit {
   }
 
   createCheckersInputList() {
-    this.inputCheckerList = "";
+    this.inputCheckerList = '';
     for (var i = 0; i < this.db.checkersList.length; i++) {
       this.inputCheckerList += "<option>" + this.db.checkersList[i].firstName + " " + this.db.checkersList[i].lastName + "-" + this.db.checkersList[i].email + "</option>";
     }
-    this.inputCheckerList += "</datalist>";
+    this.inputCheckerList += "</select>";
   }
 
   handleMaster2() {
