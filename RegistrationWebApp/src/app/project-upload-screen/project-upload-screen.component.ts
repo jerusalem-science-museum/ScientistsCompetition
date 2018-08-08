@@ -65,7 +65,7 @@ export class ProjectUploadScreenComponent implements OnInit {
     this.project.mentor1 = new Mentor();
     this.project.mentor2 = new Mentor();
     this.project.mentor3 = new Mentor();
-    this.project.isMentors = true;
+    this.project.isMentors = false;
   }
 
   ngOnInit() {
