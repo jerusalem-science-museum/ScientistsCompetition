@@ -200,12 +200,14 @@ export class TableComponent implements OnInit {
   }
 
   handleTeacher() {
-    this.obj = "<table class='table table-striped table-bordered' id='myTable'><thead><tr><th>שם פרוייקט</th><th>סטאטוס הרשמה (חוסרים)</th><th>הוספת המלצה</th><th>פריט עבודה נוכחי</th></tr></thead><tbody>";
+    this.obj = "<table class='table table-striped table-bordered' id='myTable'><thead><tr><th>שם פרוייקט</th><th>חברי צוות</th><th>סטאטוס הרשמה (חוסרים)</th><th>הוספת המלצה</th><th>פריט עבודה נוכחי</th></tr></thead><tbody>";
     for (var i = 0; i < this.db.projectsList.length; i++) {
+      this.createTeam(i);
       if (this.db.projectsList[i].school_contact_mail == this.db.loggedInUser.email) {
         this.ProjectStatusForTeacher(i);
         var str = this.router.parseUrl('/viewproject;id=' + this.db.projectsList[i].project_name + '');
         this.obj += "<tr><td><a href=" + str + ">" + this.db.projectsList[i].project_name + "</a></td>"
+          + "<td>" + this.team + "</td>"
           + "<td>" + this.missingFields + "</td>"
           + "<td class='load' ><button type='button' id=" + i + " class='btn btn-labeled btn-primary'>שנה / הוסף</button></br>";
         if (this.db.projectsList[i].recommendation_file == null) {
