@@ -56,7 +56,7 @@
                     <strong>הודעות</strong>
                 </i>
                 <div *ngIf="this.msg_counter>0">
-                    <strong>{{msg_counter}} הודעות חדשות</strong>
+                    <a [routerLink]="['/msgpage']"><strong>{{msg_counter}} הודעות חדשות</strong></a>
                 </div>
                 <div *ngIf="this.msg_counter==0">
                     אין הודעות חדשות
