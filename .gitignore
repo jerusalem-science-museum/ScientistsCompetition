@@ -76,3 +76,5 @@ modules/views/
 # vim Files
 # --------------------
 *.swp
+
+environment.prod.ts
