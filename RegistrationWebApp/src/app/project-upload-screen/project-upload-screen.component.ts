@@ -128,6 +128,8 @@ export class ProjectUploadScreenComponent implements OnInit {
     this.selectedFiles = undefined;
     this.currentFileUpload = new FileUpload(file);
     this.uploadService.pushFileToStorage(this.currentFileUpload, this.progress).then(() => {
+      this.project.project_file = this.currentFileUpload;
+      this.currentFileUpload = undefined;
       this.file_project_selected = false;
     });
   }
@@ -191,7 +193,6 @@ export class ProjectUploadScreenComponent implements OnInit {
        and between project and students (by the project listing id)
     7. FINALLY, updates the updated selected users using the asignProjectToUser() function    
     */
-    this.project.project_file = this.currentFileUpload; // assigned file in project field
     this.db.getUser(this.project.user1mail, this.project.user2mail, this.project.user3mail).then(() => {
       if (this.db.existsUsers[0] == false) {
         alert("המייל שלי' שהוזן אינו קיים במערכת'")

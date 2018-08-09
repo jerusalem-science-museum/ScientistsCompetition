@@ -193,6 +193,12 @@
             <div class="row">
                 <div class="col-xs-12 col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
                     <div class="input-group image-preview">
+                        <div class="file" *ngIf="this.project.project_file != undefined">
+                        <div>במערכת טעון המסמך:
+                          <br>
+                          <a href={{this.project.project_file.url}}>{{this.project.project_file.name}}</a>
+                        </div>
+                      </div>
                         <div class="btn btn-default image-preview-input">
                             <input type="file" (change)="selectFile($event)" required name="fileupload" />
                             <span class="glyphicon glyphicon-folder-open"></span>
