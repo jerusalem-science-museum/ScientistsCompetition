@@ -82,7 +82,6 @@ export class RegistrationFormComponent {
 
   public signIn(email, password) { //enables the sign in button function
     console.log("signing in... " + email + password);
-    this.signInVal = 'מתחבר...'
     return this.auth.signIn(email, password) //using the auth service
       .then((res) => {
         this.cookieService.set('User uid', res.user.uid);
@@ -106,10 +105,8 @@ export class RegistrationFormComponent {
         })
       })
       .catch((err) => {
-        this.signInVal = 'כניסה'
         this.db.loggedIn = 'false';
         this.db.loggedInUserUID = null;
-        this.logInError = true
         this.cookieService.set('User uid', '');
         this.cookieService.set('User login status', 'false');
       }

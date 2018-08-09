@@ -1,6 +1,4 @@
 import { Injectable } from '@angular/core';
-import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
-import { AngularFirestore } from 'angularfire2/firestore';
 import * as firebase from 'firebase';
 
 import { FileUpload } from '../fileupload';
@@ -10,7 +8,7 @@ export class UploadFileService {
 
   public basePath;
 
-  constructor(private db: AngularFireDatabase, private afs: AngularFirestore) { }
+  constructor() { }
 
   pushFileToStorage(fileUpload: FileUpload, progress: { percentage: number }) {
 
@@ -35,10 +33,19 @@ export class UploadFileService {
             fileUpload.name = fileUpload.file.name;
             console.log(fileUpload);
             resolve();
-          };
+          });
         }
       );
     });
+  }
+
+  public deleteFileUpload(fileUpload: FileUpload) {
+    this.deleteFileStorage(fileUpload.name);
+  }
+
+  private deleteFileStorage(name: string) {
+    const storageRef = firebase.storage().ref();
+    storageRef.child(`${this.basePath}/${name}`).delete();
   }
 }
 
