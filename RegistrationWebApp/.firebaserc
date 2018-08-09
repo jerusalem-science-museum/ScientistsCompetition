@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "scientists-competition"
+    "default": "young-harshama",
+    "test": "scientists-competition",
+    "prod": "young-harshama"
   }
 }
