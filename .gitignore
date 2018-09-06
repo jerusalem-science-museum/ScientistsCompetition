@@ -78,3 +78,5 @@ modules/views/
 *.swp
 
 environment.prod.ts
+environment.ts
+
