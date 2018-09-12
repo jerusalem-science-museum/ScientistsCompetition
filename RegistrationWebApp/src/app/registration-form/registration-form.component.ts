@@ -81,7 +81,6 @@ export class RegistrationFormComponent {
   }
 
   public signIn(email, password) { //enables the sign in button function
-    console.log("signing in... " + email + password);
     return this.auth.signIn(email, password) //using the auth service
       .then((res) => {
         this.cookieService.set('User uid', res.user.uid);

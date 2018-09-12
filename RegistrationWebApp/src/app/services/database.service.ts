@@ -54,7 +54,9 @@ export class DatabaseService {
 
   //adds all info that was provided through the registration form to user object and ads it to the firebase DB
   public addUserToDB(user: User) {
-    this.dataCollections.add(JSON.parse(JSON.stringify(user)));
+    let noPasswordUser = {...user};
+    delete noPasswordUser.password;
+    this.dataCollections.add(JSON.parse(JSON.stringify(noPasswordUser)));
   }
 
   //adds all info that was provided through the project-upload form to project object and ads it to the firebase DB
@@ -168,7 +170,7 @@ export class DatabaseService {
   public getAllDBUsers() {
     this.dataCollections.valueChanges().subscribe(collection => {
       for (var i = 0; i < collection.length; i++) {
-        this.registeredUsers += "   email:   " + collection[i].email + "\n   password:   " + collection[i].password + "\n   uid:   " + collection[i].uid + "   \n\n   ";
+        this.registeredUsers += "   email:   " + collection[i].email + "\n   uid:   " + collection[i].uid + "   \n\n   ";
       }
     })
   }
