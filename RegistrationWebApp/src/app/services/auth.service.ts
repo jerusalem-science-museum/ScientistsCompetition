@@ -48,7 +48,7 @@ export class AuthService {
   LogOut() //this method allow a register user to logout from the website.
   {
     this._firebaseAuth.auth.signOut()
-      .then((res) => {
+      .then(() => {
         this.router.navigate(['loginScreen'])
       })
       .catch((err) =>

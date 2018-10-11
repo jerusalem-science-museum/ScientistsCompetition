@@ -40,7 +40,10 @@ export class ProjectsUpdatePageComponent implements OnInit {
   researchStatus;
   modelStatus;
   routerId;
-  send: string
+  send: string;
+  user1name : string;
+  user2name : string;
+  user3name : string;
 
 
   constructor(public db: DatabaseService, public auth: AuthService, public uploadService: UploadFileService, public router: Router, private cookieService: CookieService, private route: ActivatedRoute) {
@@ -83,7 +86,7 @@ export class ProjectsUpdatePageComponent implements OnInit {
     this.db.getLoggedInUser().then(() => {
       if (this.db.loggedInUser.type == 'תלמיד') {
         this.isStudent = true;
-        this.title = "עדכון או צפיה בפרטי פרויקט"
+        this.title = "עדכון או צפיה בפרטי פרויקט";
       }
       else {
         this.isStudent = false;
@@ -108,6 +111,18 @@ export class ProjectsUpdatePageComponent implements OnInit {
               this.user_projects[j++] = this.project.project_name;
               this.userFile = this.project.project_file;
               this.uploadService.basePath = this.project.project_name;
+
+              this.db.getUserName(this.project.user1mail).then(name => {
+                this.user1name = name;
+              });
+
+              this.db.getUserName(this.project.user2mail).then(name => {
+                this.user2name = name;
+              });
+
+              this.db.getUserName(this.project.user3mail).then(name => {
+                this.user3name = name;
+              });
             }
           }
         }
@@ -151,6 +166,18 @@ export class ProjectsUpdatePageComponent implements OnInit {
       if (this.selectedWork == this.user_project_objects[i].project_name) {
         this.project = this.user_project_objects[i];
         this.uploadService.basePath = this.project.project_name;
+
+        this.db.getUserName(this.project.user1mail).then(name => {
+          this.user1name = name;
+        });
+
+        this.db.getUserName(this.project.user2mail).then(name => {
+          this.user2name = name;
+        });
+
+        this.db.getUserName(this.project.user3mail).then(name => {
+          this.user3name = name;
+        });
       }
     }
   }

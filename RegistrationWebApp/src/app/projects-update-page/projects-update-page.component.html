@@ -10,7 +10,7 @@
 </div>
 <div *ngIf="this.db.loggedInUser">
   <div class="container">
-    <h2 class="well">{{this.title}}</h2>
+    <h2 class="well">{{this.title}}{{this.selectedWork != "מתוך רשימה" ? " - " + this.selectedWork : ""}}</h2>
     <div class="row">
       <div *ngIf="this.db.loggedInUser.type != 'תלמיד'" class="col-sm-4 form-group">
         <legend>בחר עבודה</legend>
@@ -80,7 +80,7 @@
             <div [formGroup]="projectform">
               <label class="req">כתובת דואר אלקטרוני של שותף ראשון*</label>
               <input type="text" class="input" disabled id="partner1" required [(ngModel)]="project.user1mail" name="partner1" formControlName="partner1"
-              />
+              /><div>{{this.user1name}}</div>
               <div *ngIf="partner1.invalid && (partner1.dirty)">
                 <div *ngIf="partner1.errors.email && !CheckIfEmptyField(project.user1mail)" class="alert alert-danger">
                   נא להזין כתובת דואר אלקטרוני תקינה
@@ -90,7 +90,7 @@
             <div [formGroup]="projectform">
               <label class="reg">כתובת דואר אלקטרוני של שותף שני</label>
               <input type="text" [readonly]="this.db.loggedInUser.type == 'בודק'" id="partner2" [(ngModel)]="project.user2mail" name="partner2"
-                formControlName="partner2" />
+                formControlName="partner2" /><div>{{this.user2name}}</div>
               <div *ngIf="partner2.invalid && (partner2.dirty)">
                 <div *ngIf="partner2.errors.email && !CheckIfEmptyField(project.user2mail)" class="alert alert-danger">
                   נא להזין כתובת דואר אלקטרוני תקינה
@@ -100,7 +100,7 @@
             <div [formGroup]="projectform">
               <label class="reg">כתובת דואר אלקטרוני של שותף שלישי</label>
               <input type="text" [readonly]="this.db.loggedInUser.type == 'בודק'" id="partner3" [(ngModel)]="project.user3mail" name="partner3"
-                formControlName="partner3" />
+                formControlName="partner3" /><div>{{this.user3name}}</div>
               <div *ngIf="partner3.invalid && (partner3.dirty)">
                 <div *ngIf="partner3.errors.email && !CheckIfEmptyField(project.user3mail)" class="alert alert-danger">
                   נא להזין כתובת דואר אלקטרוני תקינה

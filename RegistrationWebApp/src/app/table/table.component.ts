@@ -124,6 +124,7 @@ export class TableComponent implements OnInit {
                 this.handleMaster1();
                 $(".btn-labeled").click(res => {
                   var TableLine = res.currentTarget.name;
+                  alert(TableLine);
                   if ($("select[id=" + TableLine + "]").val() == "") {
                     alert("נא לבחור בודק מהרשימה!");
                     return;
@@ -131,8 +132,11 @@ export class TableComponent implements OnInit {
                   else {
                     var selected = $("select[id=" + TableLine + "]").val();
                     var checkers = selected.map((str) => str.slice(str.indexOf("-") + 1, str.length));
+                    alert('checkers: ' + checkers);
+                    console.log(this.db.projectsList[TableLine].project_name);
                     this.db.projectsList[TableLine].checkerMail = checkers.join(',');
                     this.db.project = this.db.projectsList[TableLine];
+                    alert(this.db.projectsList[TableLine].project_name);
                     this.db.updateProjectListing(this.db.projectsList[TableLine].project_name);
                   }
                 });
@@ -200,11 +204,11 @@ export class TableComponent implements OnInit {
   }
 
   handleTeacher() {
-    this.obj = "<table class='table table-striped table-bordered' id='myTable'><thead><tr><th>שם פרוייקט</th><th>חברי צוות</th><th>סטאטוס הרשמה (חוסרים)</th><th>הוספת המלצה</th><th>פריט עבודה נוכחי</th></tr></thead><tbody>";
+    this.obj = "<table class='table table-striped table-bordered' id='myTable'><thead><tr><th>שם פרוייקט</th><th>חברי צוות</th><th>סטאטוס הרשמה (חוסרים)</th><th>הוספת המלצה</th><th>פריט עבודה נוכחי</th><th>סטטוס קבלה</th></tr></thead><tbody>";
     for (var i = 0; i < this.db.projectsList.length; i++) {
       this.createTeam(i);
       if (this.db.projectsList[i].school_contact_mail == this.db.loggedInUser.email) {
-        this.ProjectStatusForTeacher(i);
+        this.ProjectStatusForTeacher(i, false);
         var str = this.router.parseUrl('/viewproject;id=' + this.db.projectsList[i].project_name + '');
         this.obj += "<tr><td><a href=" + str + ">" + this.db.projectsList[i].project_name + "</a></td>"
           + "<td>" + this.team + "</td>"
@@ -215,17 +219,22 @@ export class TableComponent implements OnInit {
         }
         else { this.obj += "<a href=" + this.db.projectsList[i].recommendation_file.url + ">" + this.db.projectsList[i].recommendation_file.name + "</a></td>" }
         if (this.db.projectsList[i].project_file == null) {
-          this.obj += "<td>לא קיים פריט עבודה במערכת</td></tr>"
+          this.obj += "<td>לא קיים פריט עבודה במערכת</td>"
         }
         else { this.obj += "<td><a href=" + this.db.projectsList[i].project_file.url + ">" + this.db.projectsList[i].project_file.name + "</a></td></tr>" }
+
+        if (this.db.projectsList[i].inCompetition) { this.inCompetition = "התקבל"; }
+        else { this.inCompetition = "נדחה"; }
+        this.obj += "<td>" + this.inCompetition + "</td></tr>";
       }
     }
     this.obj += "</tbody></table>";
     $(".widget-content").html(this.obj);
   }
 
-  ProjectStatusForTeacher(index){
+  ProjectStatusForTeacher(index, summaryOnly){
       this.missingFields="";
+      this.emptyFields = [];
       this.userProject = this.db.projectsList[index];
       if (this.userProject.location == undefined || this.userProject.location == '')
         this.emptyFields.push('מוסד אקדמי בו התבצעה העבודה')
@@ -261,8 +270,13 @@ export class TableComponent implements OnInit {
       if (this.userProject.isMentors == false && (this.userProject.mentor1.email == undefined || this.userProject.mentor1.email == ''))
         this.emptyFields.push('מייל מנחה')
     this.missingFields = "<div>";
-    for(var i=0;i<this.emptyFields.length;i++){
-      this.missingFields+="<li>"+this.emptyFields[i]+"</li>";
+
+    if (summaryOnly) {
+      this.missingFields = "<b>15 / " + this.emptyFields.length + "</b>";
+    } else {
+      for(var i=0;i<this.emptyFields.length;i++){
+        this.missingFields+="<li>"+this.emptyFields[i]+"</li>";
+      }
     }
     this.missingFields+="</div>";
   }
@@ -314,12 +328,16 @@ export class TableComponent implements OnInit {
         this.obj += "<td>לא קיים קובץ המלצה במערכת</td>"
       }
       else { this.obj += "<td><a href=" + projects[i].recommendation_file.url + ">" + projects[i].recommendation_file.name + "</a></td>" }
-      this.obj += "<td><button id=" + i + " class='btn btn-checker' data-toggle='modal' data-target='#myModal'>" +
-        "צפיה בהערות הבודק</button></td></tr>";
+
+      if (projects[i].check != null && projects[i].check.trim().length > 0) {
+        this.obj += "<td><button id="+i+" class='btn btn-checker' data-toggle='modal' data-target='#myModal'>צפיה בהערות הבודק</button></td></tr>";
+      } else {
+        this.obj += "<td>אין</td>";
+      }
     }
     this.obj += "</tbody></table>";
     $(".widget-content").html(this.obj);
-    this.checkerRecommendation(1);
+    this.checkerRecommendation(1, projects);
   }
 
  
@@ -327,9 +345,10 @@ export class TableComponent implements OnInit {
   handleMaster1() {
     this.createCheckersInputList();
     this.obj = "<table class='table table-striped table-bordered' id='myTable'><thead><tr><th></th><th>שם פרוייקט</th><th>תאריך יצירה</th><th>סוג העבודה</th><th>תחום</th><th>חברי צוות</th>" +
-      "<th>איש הקשר</th><th>המלצה</th><th>פריט עבודה נוכחי</th><th>בתחרות</th><th>הקצאת בודק</th><th>שיוך בודק</th><th>מחק פרוייקט</th></tr></thead><tbody>";
+      "<th>סטאטוס הרשמה (חוסרים)</th><th>איש הקשר</th><th>המלצה</th><th>פריט עבודה נוכחי</th><th>בתחרות</th><th>הקצאת בודק</th><th>שיוך בודק</th><th>יש הערות?</th><th>מחק פרוייקט</th></tr></thead><tbody>";
     for (var i = 0; i < this.db.projectsList.length; i++) {
       this.createTeam(i);
+      this.ProjectStatusForTeacher(i, true);
       var str = this.router.parseUrl('/viewproject;id=' + this.db.projectsList[i].project_name + '');
       var str2 = this.router.parseUrl('/registrationForm;email='+this.db.projectsList[i].school_contact_mail+ '');
       this.obj += "<tr class="+i+"><td>"+(i+1)+"</td><td><a href=" + str + ">" + this.db.projectsList[i].project_name + "</a></td>";
@@ -340,6 +359,7 @@ export class TableComponent implements OnInit {
         "<td>" + this.db.projectsList[i].type + "</td>" +
         "<td>" + this.db.projectsList[i].project_field + "</td>" +
         "<td>" + this.team + "</td>" +
+        "<td>" + this.missingFields + "</td>" +
         "<td>" +"<a href=" + str2 + ">" + teacherName + "</a></td>";
       if (this.db.projectsList[i].recommendation_file == null) {
         this.obj += "<td>לא קיים קובץ המלצה במערכת</td>"
@@ -354,14 +374,19 @@ export class TableComponent implements OnInit {
       this.obj += "<td width='105px'><button type='button' name="+i+" class='btn btn-info btn-circle'><i class='glyphicon glyphicon-ok'></i></button>&nbsp;" +
         "<button type='button' name=" + i + " class='btn btn-warning btn-circle'><i class='glyphicon glyphicon-remove'></i></button>" + this.inCompetition + "</td>";
       if (this.db.projectsList[i].checkerMail != undefined) {
-        this.obj += "<td><form><select id="+i+"  multiple size='4'>" + this.inputCheckerList + "</form><div>הבודק הנוכחי הינו:    " + this.db.projectsList[i].checkerMail + "</div>"+
-                    "<button name="+i+" class='btn btn-checker'>צפיה בהערות הבודקים</button></td>";
+        this.obj += "<td><form><select id="+i+"  multiple size='4'>" + this.inputCheckerList + "</form><div>הבודק הנוכחי הינו:    " + this.db.projectsList[i].checkerMail + "</div>";
+        if (this.db.projectsList[i].check != null && this.db.projectsList[i].check.trim().length > 0) {
+            this.obj += "<button name="+i+" class='btn btn-checker'>צפיה בהערות הבודקים</button>";
+        }
+        this.obj += "</td>"
         this.obj += "<td><button type='button' name="+i+" class='btn btn-labeled btn-primary'>שייך</button></td>"
       }
       else {
         this.obj += "<td><form><select id="+i+"  multiple size='4'>" + this.inputCheckerList + "</td>";
         this.obj += "<td><button type='button' name="+i+" class='btn btn-labeled btn-primary'>שייך</button></td>"
       }
+
+      this.obj += "<td>" + (this.db.projectsList[i].check != null && this.db.projectsList[i].check.trim().length > 0 ? "כן" : "לא") "</td>";
       this.obj += "<td><button type='button' name="+i+" class='delProject'>מחק</button></td></tr>";
     }
     this.obj += "</tbody></table>";
@@ -408,8 +433,12 @@ export class TableComponent implements OnInit {
         "<td>" + this.db.usersList[i].phone + "</td>";
         if(this.db.usersList[i].type=="תלמיד" && (this.db.usersList[i].project==undefined || this.db.usersList[i].project=='not found'))
               this.obj +="<td>חסר עבודה</td>";
-        else if(this.db.usersList[i].type=="תלמיד" && (this.db.usersList[i].project!=undefined && this.db.usersList[i].project!='not found'))
-              this.obj +="<td>קיים</td>";
+        else if(this.db.usersList[i].type=="תלמיד" && (this.db.usersList[i].project!=undefined && this.db.usersList[i].project!='not found')) {
+              alert(this.db.usersList[i].project);
+              var project = this.db.getProject(this.db.usersList[i].project);
+              var str = this.router.parseUrl('/viewproject;id=' + project.project_name + '');
+              this.obj += "<td><a href=" + str + ">" + project.project_name + "</a></td>";
+        }
         else
               this.obj +="<td></td>";
         this.obj +="<td><button type='button' name="+ i +" class='btn btn-inverse'><i class='glyphicon glyphicon-trash'></i> לחץ למחיקה</button></td></tr>";
@@ -418,18 +447,22 @@ export class TableComponent implements OnInit {
     $(".widget-content").html(this.obj);
   }
 
-  checkerRecommendation(currentValue){
+  checkerRecommendation(currentValue, list){
+    var projectsList = list == undefined ? this.db.projectsList : list; 
     $(".btn-checker").click(res => {
       var index, text, winContent;
       if(currentValue==1){index = res.currentTarget.id;}
       else{index = res.currentTarget.name;}
-      if (this.db.projectsList[index].check == undefined)
+
+      if (projectsList[index].check != null && projectsList[index].check.trim().length > 0) {
+        text = projectsList[index].check;
+      } else {
         if(currentValue==1)
             text = "בודק יקר,</br>עדיין לא הוזנה בדיקה.</br> על מנת להזין את הבדיקה יש ללחוץ על שם העבודה ולהזין את הבדיקה בשדה המיועד לכך הנמצא בתחתית העמוד.";
         else
             text = "טרם בוצעה בדיקה."
-      else
-        text = this.db.projectsList[index].check;
+      }
+        
       winContent = "<legend><strong>הערות הבודק</strong></legend>" +
         "<div class='modal-body'><p>" + text + "</p>" +
         "<button type='button' class='btn btn-labeled' id='close' ><i class='glyphicon glyphicon-remove'>&nbsp;</i>סגור</button></div>";

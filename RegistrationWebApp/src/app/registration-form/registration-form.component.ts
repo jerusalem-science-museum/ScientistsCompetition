@@ -31,20 +31,25 @@ export class RegistrationFormComponent {
   constructor(public db: DatabaseService, public auth: AuthService, public router: Router, private cookieService: CookieService, private route: ActivatedRoute) { }
 
   ngOnInit() {
+    console.log('OnInit registration')
     this.cookieService.set('page', 'registrationForm');
     this.db.loggedInUserUID = this.cookieService.get('User uid');
+    console.log('Logged in user UID: ' + this.db.loggedInUserUID);
     this.db.loggedIn = this.cookieService.get('User login status');
     this.manager_mode = this.cookieService.get('mode');
     this.route.params.subscribe((params: Params) => {
       this.routerMail = params['email'];
     });
+    console.log('Request User')
     this.db.getLoggedInUser().then(() => {
+      console.log('Got logged user!')
       this.db.setMetaData();
       this.userTypes = ['תלמיד', 'מורה'];
       this.managerTypes = ['תלמיד', 'מורה', 'בודק', 'מנהל'];
       this.user = new User(false, this.userTypes[0]); //deafult type is student
 
       if (this.db.loggedIn != 'true' || this.manager_mode=='new'){
+        console.log('Not logged in!');
         this.user = new User(false, this.userTypes[0]); //deafult type is student
         this.msg.subj="ברוכים הבאים לאתר ההרשמה";
         this.date = new Date();
@@ -56,12 +61,15 @@ export class RegistrationFormComponent {
       }
 
       else if (this.manager_mode=='updateUser'){
+        console.log('Updating!');
         this.db.getUser(this.routerMail,'','').then(() =>{
           this.user = this.db.selectedUser[0];
         })
       }
-      else
+      else {
+        console.log('Connected!');
         this.user = this.db.loggedInUser;
+      }
 
       this.signUpError = false; // default- no registration form errors
       this.date = new Date();
@@ -114,13 +122,16 @@ export class RegistrationFormComponent {
 
   // on register user button click adds new user to Database according to the data that was collected from the registration form
   public registerUser() {
-    for (var i = 0; i < this.db.usersList.length; i++){
-      if (this.db.usersList[i].userid == this.user.userid){
-        this.signUpError = true;
-        alert("תעודת זהות כבר קיימת במערכת")
-        return;  
+    if (this.user.type != 'בודק') {
+      for (var i = 0; i < this.db.usersList.length; i++){
+        if (this.db.usersList[i].userid == this.user.userid){
+          this.signUpError = true;
+          alert("תעודת זהות כבר קיימת במערכת")
+          return;  
+        }
       }
     }
+
     if (this.user.type != 'תלמיד') { // in case is not student--> there is not required fildes
       this.userform.get('birthday').clearValidators();
       this.userform.get('birthday').updateValueAndValidity();
@@ -136,6 +147,15 @@ export class RegistrationFormComponent {
       this.userform.get('schoolCity').updateValueAndValidity();
        //now teacher/ checker/ manager can register
     }
+    if (this.user.type == 'בודק') {
+      this.userform.get('userid').clearValidators();
+      this.userform.get('userid').updateValueAndValidity();
+      this.userform.get('gender').clearValidators();
+      this.userform.get('gender').updateValueAndValidity();
+      this.userform.get('phone').clearValidators();
+      this.userform.get('phone').updateValueAndValidity();
+    }
+
     if (!this.validatePassword()) { // condition to prevent confirm password
       this.signUpError = true;
       return;
@@ -148,7 +168,10 @@ export class RegistrationFormComponent {
           if (this.signUpError == true)// condition to prevent error
             return;
           //successfully registered:
+
           this.user.uid = res.user.uid; // sets the uid value in the attribute
+          console.log('NEW USER:');
+          console.log(this.user);
           this.db.addUserToDB(this.user); // add user to database
           if(this.db.loggedIn == 'true' && this.db.loggedInUser.type == 'מנהל')
               this.router.navigate(['manager']);
