@@ -193,6 +193,11 @@ export class ProjectUploadScreenComponent implements OnInit {
        and between project and students (by the project listing id)
     7. FINALLY, updates the updated selected users using the asignProjectToUser() function    
     */
+    if (this.db.getProjectID(this.project.project_name) !== 'not found') {
+      alert("קיים כבר פרוייקט בשם הזה, נסה שם אחר");
+      return;
+    }
+
     this.db.getUser(this.project.user1mail, this.project.user2mail, this.project.user3mail).then(() => {
       if (this.db.existsUsers[0] == false) {
         alert("המייל שלי' שהוזן אינו קיים במערכת'")

@@ -109,7 +109,7 @@
             </div>
             <div [formGroup]="projectform">
               <label class="req">שם העבודה*</label>
-              <input type="text" [readonly]="this.db.loggedInUser.type == 'בודק'" id="projectname" required [(ngModel)]="project.project_name"
+              <input type="text" [readonly]="true" id="projectname" required [(ngModel)]="project.project_name"
                 name="projectname" formControlName="projectname" />
             </div>
             <div [formGroup]="projectform">
