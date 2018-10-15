@@ -126,7 +126,6 @@ export class UserHomePageComponent implements OnInit {
   //on update info button click updates logged in users info according to the info that was inserted in the temporary update form
   public updateInfo() {
     this.db.updateListing(this.db.loggedInUser.email);
-    alert("Data updated!");
   }
 
   public days() {

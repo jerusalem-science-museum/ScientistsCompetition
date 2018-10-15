@@ -124,7 +124,6 @@ export class TableComponent implements OnInit {
                 this.handleMaster1();
                 $(".btn-labeled").click(res => {
                   var TableLine = res.currentTarget.name;
-                  alert(TableLine);
                   if ($("select[id=" + TableLine + "]").val() == "") {
                     alert("נא לבחור בודק מהרשימה!");
                     return;
@@ -132,11 +131,9 @@ export class TableComponent implements OnInit {
                   else {
                     var selected = $("select[id=" + TableLine + "]").val();
                     var checkers = selected.map((str) => str.slice(str.indexOf("-") + 1, str.length));
-                    alert('checkers: ' + checkers);
                     console.log(this.db.projectsList[TableLine].project_name);
                     this.db.projectsList[TableLine].checkerMail = checkers.join(',');
                     this.db.project = this.db.projectsList[TableLine];
-                    alert(this.db.projectsList[TableLine].project_name);
                     this.db.updateProjectListing(this.db.projectsList[TableLine].project_name);
                   }
                 });
@@ -434,7 +431,6 @@ export class TableComponent implements OnInit {
         if(this.db.usersList[i].type=="תלמיד" && (this.db.usersList[i].project==undefined || this.db.usersList[i].project=='not found'))
               this.obj +="<td>חסר עבודה</td>";
         else if(this.db.usersList[i].type=="תלמיד" && (this.db.usersList[i].project!=undefined && this.db.usersList[i].project!='not found')) {
-              alert(this.db.usersList[i].project);
               var project = this.db.getProject(this.db.usersList[i].project);
               var str = this.router.parseUrl('/viewproject;id=' + project.project_name + '');
               this.obj += "<td><a href=" + str + ">" + project.project_name + "</a></td>";

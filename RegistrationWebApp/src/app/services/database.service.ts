@@ -70,10 +70,7 @@ export class DatabaseService {
   }
   //Returns the DB table meta data from firebase including all table fields id and users
   getSettingsMetaData() {
-    console.log("getSettingsMetaData");
     this.observableSettings = this.settingsCollection.snapshotChanges().map(actions => {
-      console.log("Got settings!");
-      console.log(actions);
       return actions.map(a => {
         const data = a.payload.doc.data() as CompetitionSettings;
         const id = a.payload.doc.id;
@@ -112,7 +109,6 @@ export class DatabaseService {
   updateProjectListing(project_name: string) {
     for (var i = 0; i < this.projectsList.length; i++) {
       if (this.projectsList[i].project_name == project_name) {
-        alert('updating project with index: ' + i + ' and id ' + this.projectsList[i].id);
         this.listingDoc = this.projectCollections.doc(`${this.projectsList[i].id}`); //takes the listing that will be updated by the doc.id (listing's id)
         this.listingDoc.update(JSON.parse(JSON.stringify(this.project)));
       }
@@ -143,10 +139,8 @@ export class DatabaseService {
 
   //This is a help function to setMetaData() it retrives usersInfo table including listing IDs.
   getMetaData() {
-    console.log("getMetaData");
     this.observableUsers = this.dataCollections.snapshotChanges().map(actions => { //collects the DB table meta data including all table fields id and users
       return actions.map(a => {
-        console.log('got MetaData!');
         const data = a.payload.doc.data() as User;
         const id = a.payload.doc.id;
         return { id, ...data };
@@ -163,10 +157,8 @@ export class DatabaseService {
   }
 
   getProjectMetaData() { //Returns the DB table meta data from firebase including all table fields id and users
-    console.log('getProjectMetaData');
     this.observableProjects = this.projectCollections.snapshotChanges().map(actions => {
       return actions.map(a => {
-        console.log('got ProjectMetaData!');
         const data = a.payload.doc.data() as User;
         const id = a.payload.doc.id;
         return { id, ...data };
@@ -178,9 +170,7 @@ export class DatabaseService {
 
   //currently a temp function that stores basic users information that is found at the FBDB.
   public getAllDBUsers() {
-    console.log('getAllDBUsers');
     this.dataCollections.valueChanges().subscribe(collection => {
-      console.log('got all db users!');
       for (var i = 0; i < collection.length; i++) {
         this.registeredUsers += "   email:   " + collection[i].email + "\n   uid:   " + collection[i].uid + "   \n\n   ";
       }
@@ -189,10 +179,8 @@ export class DatabaseService {
   //returns the currently logged in user by his uid and sets the value in loggedInUser property.
   //in order to use this function - the value of loggedIn has to be true. user cookies if needed
   public getLoggedInUser() {
-    console.log('Get LoggedInUser:');
     return new Promise((resolve, reject) => {
       this.dataCollections.valueChanges().subscribe(collection => {
-        console.log('Got Users for logged in user request!');
         for (var i = 0; i < collection.length; i++) {
           if (collection[i].uid === this.loggedInUserUID) {
             console.log('Logged in user uid: ' + this.loggedInUserUID)
@@ -211,9 +199,7 @@ export class DatabaseService {
   //This function sets in the 'selectedUser' array (first 3 cells) property users that were found by a given email.
   public getUser(email1: string, email2: string, email3: string) { // get user asiggned to project
     return new Promise((resolve, reject) => {
-      console.log('getUser:');
       this.dataCollections.valueChanges().subscribe(collection => {
-        console.log('got User!');
         for (var i = 0; i < collection.length; i++) { //find participantes email's and puts them in array
           if (collection[i].email === email1) {
             this.selectedUser[0] = collection[i];
@@ -234,12 +220,10 @@ export class DatabaseService {
   }
 
   public getUserName(email1: string) { // get user asiggned to project
-    console.log('getUserName:');
     return new Promise((resolve, reject) => {
       this.dataCollections.valueChanges().subscribe(collection => {
         for (var i = 0; i < collection.length; i++) { //find participantes email's and puts them in array
           if (collection[i].email === email1) {
-            console.log('got user name!');
             resolve(collection[i].firstName + " " + collection[i].lastName);
           }
         }
@@ -250,7 +234,6 @@ export class DatabaseService {
 
   // returns the id listing of project by a given project name
   public getProjectID(pname: string) { //get project ID by Project name
-    console.log('getProjectId:');
     for (var i = 0; i < this.projectsList.length; i++) {
       if (this.projectsList[i].project_name == pname) {
         return this.projectsList[i].id;
@@ -260,7 +243,6 @@ export class DatabaseService {
   }
 
   public getProject(id: string) {
-    console.log('getProjectId:');
     for (var i = 0; i < this.projectsList.length; i++) {
       if (this.projectsList[i].id == id) {
         return this.projectsList[i];

@@ -154,6 +154,10 @@ export class RegistrationFormComponent {
       this.userform.get('gender').updateValueAndValidity();
       this.userform.get('phone').clearValidators();
       this.userform.get('phone').updateValueAndValidity();
+      this.userform.get('engfname').clearValidators();
+      this.userform.get('engfname').updateValueAndValidity();
+      this.userform.get('englname').clearValidators();
+      this.userform.get('englname').updateValueAndValidity();
     }
 
     if (!this.validatePassword()) { // condition to prevent confirm password
