@@ -1,7 +1,55 @@
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if request.auth.uid!=null
+  	
+    function getCurrentUser() {
+    	return get(/databases/$(database)/documents/usersInfo/$(request.auth.uid));
+    }
+    
+    function getProject(id) {
+    	return get(/databases/$(database)/documents/projectsInfo/$(id));
+    }
+  
+  	function getCurrentType() {
+    	return getCurrentUser().data.type;
+    }
+    
+    function getCurrentEmail() {
+    	return getCurrentUser().data.email;
+    }
+  
+    function isManager() {
+      return request.auth.uid != null && getCurrentType() == 'מנהל';
+    }
+    
+    function isStudent() {
+      return request.auth.uid != null && getCurrentType() == 'תלמיד';
+    }
+    
+    function isTeacher() {
+      return request.auth.uid != null && getCurrentType() == 'מורה';
+    }
+    
+    function isTester() {
+      return request.auth.uid != null && getCurrentType() == 'בודק';
+    }
+
+  	match /usersInfo/{userId} {
+    	allow read: if true;
+      allow create: if request.resource.data.type != 'מנהל' && (isManager() || request.resource.data.type != 'בודק');
+      allow update: if isManager() || (request.auth.uid != null && request.resource.data.type == getCurrentType());
+      allow delete: if false;//if isManager();
+    }
+    
+    match /CompetitionSettings/{competitionId} {
+    	allow read: if request.auth.uid != null;
+      allow write: if isManager();
+    }
+    
+    match /projectsInfo/{projectId} {
+    	allow read: if true;// isManager() || isTester() || (isStudent() && (getProject(projectId).data.user1mail == getCurrentEmail() || getProject(projectId).data.user2mail == getCurrentEmail() || getProject(projectId).data.user3mail == getCurrentEmail())) || (isTeacher() && getProject(projectId).data.school_contact_mail == getCurrentEmail());
+    	allow update: if isManager() || isTester() || (isStudent() && (getProject(projectId).data.user1mail == getCurrentEmail() || getProject(projectId).data.user2mail == getCurrentEmail() || getProject(projectId).data.user3mail == getCurrentEmail()))
+      allow create: if isManager() || (isStudent() && (request.resource.data.user1mail == getCurrentEmail() || request.resource.data.user2mail == getCurrentEmail() || request.resource.data.user3mail == getCurrentEmail()));
+      allow delete: if false;//if isManager();
     }
   }
 }
