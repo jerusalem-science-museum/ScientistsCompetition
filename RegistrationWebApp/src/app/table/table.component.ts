@@ -201,12 +201,12 @@ export class TableComponent implements OnInit {
   }
 
   handleTeacher() {
-    this.obj = "<table class='table table-striped table-bordered' id='myTable'><thead><tr><th>שם פרוייקט</th><th>חברי צוות</th><th>סטאטוס הרשמה (חוסרים)</th><th>הוספת המלצה</th><th>פריט עבודה נוכחי</th><th>סטטוס קבלה</th></tr></thead><tbody>";
+    this.obj = "<div class='table-responsive'><table class='table table-striped table-bordered' id='myTable'><thead><tr><th>שם פרוייקט</th><th>חברי צוות</th><th>סטאטוס הרשמה (חוסרים)</th><th>הוספת המלצה</th><th>פריט עבודה נוכחי</th><th>סטטוס קבלה</th></tr></thead><tbody>";
     for (var i = 0; i < this.db.projectsList.length; i++) {
       this.createTeam(i);
       if (this.db.projectsList[i].school_contact_mail == this.db.loggedInUser.email) {
         this.ProjectStatusForTeacher(i, false);
-        var str = this.router.parseUrl('/viewproject;id=' + this.db.projectsList[i].project_name + '');
+        var str = this.router.parseUrl('/viewproject;id=' + this.db.projectsList[i].project_name.replace(/\(/g, "%28").replace(/\)/g, "%29") + '');
         this.obj += "<tr><td><a href=" + str + ">" + this.db.projectsList[i].project_name + "</a></td>"
           + "<td>" + this.team + "</td>"
           + "<td>" + this.missingFields + "</td>"
@@ -225,7 +225,7 @@ export class TableComponent implements OnInit {
         this.obj += "<td>" + this.inCompetition + "</td></tr>";
       }
     }
-    this.obj += "</tbody></table>";
+    this.obj += "</tbody></table></div>";
     $(".widget-content").html(this.obj);
   }
 
@@ -289,6 +289,7 @@ export class TableComponent implements OnInit {
     this.uploadService.basePath = this.project.project_name;
     this.current_recommendation_FileUpload = new FileUpload(file);
     this.uploadService.pushFileToStorage(this.current_recommendation_FileUpload, this.progress).then(() => {
+      console.log('FILE ADDED!')
       this.project.recommendation_file = this.current_recommendation_FileUpload;
       this.db.project = this.project;
       this.db.updateProjectListing(this.project.project_name);
@@ -307,14 +308,14 @@ export class TableComponent implements OnInit {
 
 
   handleChecker() {
-    this.obj = "<table class='table table-striped table-bordered' id='myTable'><thead><tr><th></th><th>שם פרוייקט</th><th>שלי?</th><th>איש קשר</th><th>פריט עבודה נוכחי</th>" +
+    this.obj = "<div class='table-responsive'><table class='table table-striped table-bordered' id='myTable'><thead><tr><th></th><th>שם פרוייקט</th><th>שלי?</th><th>איש קשר</th><th>פריט עבודה נוכחי</th>" +
       "<th>קובץ המלצה נוכחי</th><th>הערות למיון</th></tr></thead><tbody>";
     var myProjects = this.db.projectsList.filter((project) => (project.checkerMail != undefined && project.checkerMail.indexOf(this.db.loggedInUser.email) >= 0));
     var otherProjects = this.db.projectsList.filter((project) => (project.checkerMail == undefined || project.checkerMail.indexOf(this.db.loggedInUser.email) < 0));
     var projects = myProjects.concat(otherProjects);
     for (var i = 0; i < projects.length; i++) {
       var isMine = (projects[i].checkerMail != undefined && projects[i].checkerMail.indexOf(this.db.loggedInUser.email) >= 0);
-      var str = this.router.parseUrl('/viewproject;id=' + projects[i].project_name + '');
+      var str = this.router.parseUrl('/viewproject;id=' + projects[i].project_name.replace(/\(/g, "%28").replace(/\)/g, "%29") + '');
       this.obj += "<tr><td>"+(i+1)+"</td><td><a href=" + str + ">" + projects[i].project_name + "</a></td>" + "<td>" + (isMine ? "כן" : "לא") + "</td>" +
         "<td>" + projects[i].school_contact_mail + "</td>";
       if (projects[i].project_file == null) {
@@ -332,7 +333,7 @@ export class TableComponent implements OnInit {
         this.obj += "<td>אין</td>";
       }
     }
-    this.obj += "</tbody></table>";
+    this.obj += "</tbody></table></div>";
     $(".widget-content").html(this.obj);
     this.checkerRecommendation(1, projects);
   }
@@ -341,12 +342,12 @@ export class TableComponent implements OnInit {
 
   handleMaster1() {
     this.createCheckersInputList();
-    this.obj = "<table class='table table-striped table-bordered' id='myTable'><thead><tr><th></th><th>שם פרוייקט</th><th>תאריך יצירה</th><th>סוג העבודה</th><th>תחום</th><th>חברי צוות</th>" +
+    this.obj = "<div class='table-responsive'><table class='table table-striped table-bordered' id='myTable'><thead><tr><th></th><th>שם פרוייקט</th><th>תאריך יצירה</th><th>סוג העבודה</th><th>תחום</th><th>חברי צוות</th>" +
       "<th>סטאטוס הרשמה (חוסרים)</th><th>איש הקשר</th><th>המלצה</th><th>פריט עבודה נוכחי</th><th>בתחרות</th><th>הקצאת בודק</th><th>שיוך בודק</th><th>יש הערות?</th><th>מחק פרוייקט</th></tr></thead><tbody>";
     for (var i = 0; i < this.db.projectsList.length; i++) {
       this.createTeam(i);
       this.ProjectStatusForTeacher(i, true);
-      var str = this.router.parseUrl('/viewproject;id=' + this.db.projectsList[i].project_name + '');
+      var str = this.router.parseUrl('/viewproject;id=' + this.db.projectsList[i].project_name.replace(/\(/g, "%28").replace(/\)/g, "%29") + '');
       var str2 = this.router.parseUrl('/registrationForm;email='+this.db.projectsList[i].school_contact_mail+ '');
       this.obj += "<tr class="+i+"><td>"+(i+1)+"</td><td><a href=" + str + ">" + this.db.projectsList[i].project_name + "</a></td>";
       var date = new Date(this.db.projectsList[i].date);
@@ -383,12 +384,12 @@ export class TableComponent implements OnInit {
         this.obj += "<td><button type='button' name="+i+" class='btn btn-labeled btn-primary'>שייך</button></td>"
       }
 
-      this.obj += "<td>" + (this.db.projectsList[i].check != null && this.db.projectsList[i].check.trim().length > 0 ? "כן" : "לא") "</td>";
+      this.obj += "<td>" + (this.db.projectsList[i].check != null && this.db.projectsList[i].check.trim().length > 0 ? "כן" : "לא") + "</td>";
       this.obj += "<td><button type='button' name="+i+" class='delProject'>מחק</button></td></tr>";
     }
-    this.obj += "</tbody></table>";
+    this.obj += "</tbody></table></div>";
     $(".widget-content").html(this.obj);
-    this.checkerRecommendation(2);
+    this.checkerRecommendation(2, undefined);
   }
 
   createTeam(index) {
@@ -420,7 +421,7 @@ export class TableComponent implements OnInit {
 
   handleMaster2() {
     this.obj = "<table class='table table-striped table-bordered' id='myTable'><thead><tr><th>שם משתמש</th><th>סוג</th><th>תעודת זהות</th><th>כתובת דואל אלקטרוני</th>" +
-      "<th>טלפון</th><th>פרוייקט</th><th>מחק משתמש</th></tr></thead><tbody>";
+      "<th>טלפון</th><th>פרוייקט</th><th>זמן יצירה</th><th>מחק משתמש</th></tr></thead><tbody>";
     for (var i = 0; i < this.db.usersList.length; i++) {
       var str = this.router.parseUrl('/registrationForm;email=' + this.db.usersList[i].email + '');
       this.obj += "<tr id="+i+"><td><a href=" + str + ">" + this.db.usersList[i].firstName + " " + this.db.usersList[i].lastName + "</a></td>" +
@@ -432,11 +433,12 @@ export class TableComponent implements OnInit {
               this.obj +="<td>חסר עבודה</td>";
         else if(this.db.usersList[i].type=="תלמיד" && (this.db.usersList[i].project!=undefined && this.db.usersList[i].project!='not found')) {
               var project = this.db.getProject(this.db.usersList[i].project);
-              var str = this.router.parseUrl('/viewproject;id=' + project.project_name + '');
+              var str = this.router.parseUrl('/viewproject;id=' + project.project_name.replace(/\(/g, "%28").replace(/\)/g, "%29") + '');
               this.obj += "<td><a href=" + str + ">" + project.project_name + "</a></td>";
         }
         else
               this.obj +="<td></td>";
+        this.obj += "<td>" + new Date(this.db.usersList[i].creation_date).toLocaleTimeString('UTC', {hour12: false}) + " " + new Date(this.db.usersList[i].creation_date).toLocaleDateString('he-IL') + "</td>"
         this.obj +="<td><button type='button' name="+ i +" class='btn btn-inverse'><i class='glyphicon glyphicon-trash'></i> לחץ למחיקה</button></td></tr>";
     }
     this.obj += "</tbody></table>";

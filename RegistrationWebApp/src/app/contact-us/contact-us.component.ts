@@ -164,26 +164,30 @@ export class ContactUsComponent implements OnInit {
  */
   onSubmit() {
     const { name, email, message } = this.form.value;
-    const date = Date();
-    const html = `
-      <div>From: ${name}</div>
-      <div>Email: <a href="mailto:${email}">${email}</a></div>
-      <div>Date: ${date}</div>
-      <div>Message: ${message}</div>
-    `;//an html string so the admin could view the user's message detailes.
-    let formRequest = { name, email, message, date, html };
-    this.today = this.date.getDate().toString() + "/" + (this.date.getMonth() + 1).toString() + "/" + this.date.getFullYear().toString();
-    if (this.db.loggedInUser.type == 'מנהל'){
-      this.setContactsList();
-    }
-    this.msg = new Message(name, message, this.today);
-    this.msg.email = this.db.loggedInUser.email;
-    this.msg.name = this.db.loggedInUser.firstName;
-    this.msg.last_name = this.db.loggedInUser.lastName;
-    this.msgService.addMsgToUser(this.contact_emails, this.msg);
-    this.form.reset();
-    if(this.db.loggedInUser.type == 'מנהל')
+
+    if(this.db.loggedInUser.type != 'מנהל') {
+      window.location.href = 'mailto:hamutall@mada.org.il' + '?subject=' + name + '&body=' + message.replace(/\n/mg,"%0D%0A");;
+    } else {
+      const date = Date();
+      const html = `
+        <div>From: ${name}</div>
+        <div>Email: <a href="mailto:${email}">${email}</a></div>
+        <div>Date: ${date}</div>
+        <div>Message: ${message}</div>
+      `;//an html string so the admin could view the user's message detailes.
+      let formRequest = { name, email, message, date, html };
+      this.today = this.date.getDate().toString() + "/" + (this.date.getMonth() + 1).toString() + "/" + this.date.getFullYear().toString();
+      if (this.db.loggedInUser.type == 'מנהל'){
+        this.setContactsList();
+      }
+      this.msg = new Message(name, message, this.today);
+      this.msg.email = this.db.loggedInUser.email;
+      this.msg.name = this.db.loggedInUser.firstName;
+      this.msg.last_name = this.db.loggedInUser.lastName;
+      this.msgService.addMsgToUser(this.contact_emails, this.msg);
+      this.form.reset();
       this.contact_emails = [];
+    }
   }
 }
 

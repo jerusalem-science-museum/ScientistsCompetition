@@ -47,7 +47,7 @@ service cloud.firestore {
     
     match /projectsInfo/{projectId} {
     	allow read: if true;// isManager() || isTester() || (isStudent() && (getProject(projectId).data.user1mail == getCurrentEmail() || getProject(projectId).data.user2mail == getCurrentEmail() || getProject(projectId).data.user3mail == getCurrentEmail())) || (isTeacher() && getProject(projectId).data.school_contact_mail == getCurrentEmail());
-    	allow update: if isManager() || isTester() || (isStudent() && (getProject(projectId).data.user1mail == getCurrentEmail() || getProject(projectId).data.user2mail == getCurrentEmail() || getProject(projectId).data.user3mail == getCurrentEmail()))
+    	allow update: if isManager() || isTester() || (isStudent() && (getProject(projectId).data.user1mail == getCurrentEmail() || getProject(projectId).data.user2mail == getCurrentEmail() || getProject(projectId).data.user3mail == getCurrentEmail())) || (isTeacher() && getProject(projectId).data.school_contact_mail == getCurrentEmail());
       allow create: if isManager() || (isStudent() && (request.resource.data.user1mail == getCurrentEmail() || request.resource.data.user2mail == getCurrentEmail() || request.resource.data.user3mail == getCurrentEmail()));
       allow delete: if false;//if isManager();
     }

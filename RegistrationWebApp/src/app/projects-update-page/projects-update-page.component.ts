@@ -41,9 +41,9 @@ export class ProjectsUpdatePageComponent implements OnInit {
   modelStatus;
   routerId;
   send: string;
-  user1name : string;
-  user2name : string;
-  user3name : string;
+  user1name;
+  user2name;
+  user3name;
 
 
   constructor(public db: DatabaseService, public auth: AuthService, public uploadService: UploadFileService, public router: Router, private cookieService: CookieService, private route: ActivatedRoute) {

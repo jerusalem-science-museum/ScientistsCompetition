@@ -5,7 +5,7 @@ import '@firebase/auth'
 import { Observable } from 'rxjs/Observable';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
-import * as firebase from 'firebase';
+import * as firebase2 from 'firebase';
 
 @Injectable()
 export class AuthService {
@@ -22,13 +22,17 @@ export class AuthService {
     return this._firebaseAuth.auth.signInWithEmailAndPassword(email, password)
   }
 
-  emailSignUp(email: string, password: string) //this method allows user to signup to the web-app with provided email and password.
+  emailSignUp(email: string, password: string, isManager: boolean) //this method allows user to signup to the web-app with provided email and password.
   {
-    if (this.secondaryApp == undefined) {
-      this.secondaryApp = firebase.initializeApp(environment.firebase, "Secondary");
-    }
+    if (isManager) {
+      if (this.secondaryApp == undefined) {
+        this.secondaryApp = firebase2.initializeApp(environment.firebase, "Secondary");
+      }
 
-    return this.secondaryApp.auth().createUserWithEmailAndPassword(email, password);
+      return this.secondaryApp.auth().createUserWithEmailAndPassword(email, password);
+    } else {
+      return this._firebaseAuth.auth.createUserWithEmailAndPassword(email, password);
+    }
   }
 
   resetPassword(email: string) //this method allow an registered user to reset his password

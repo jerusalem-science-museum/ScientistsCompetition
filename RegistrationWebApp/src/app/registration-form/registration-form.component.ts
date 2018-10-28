@@ -91,6 +91,7 @@ export class RegistrationFormComponent {
   public signIn(email, password) { //enables the sign in button function
     return this.auth.signIn(email, password) //using the auth service
       .then((res) => {
+        console.log('SIGNED IN!');
         this.cookieService.set('User uid', res.user.uid);
         this.cookieService.set('User login status', 'true');
         this.db.loggedInUserUID = res.user.uid
@@ -167,7 +168,7 @@ export class RegistrationFormComponent {
 
     if (this.userform.valid) { // no validate errors
       this.signUpError = false;
-      this.auth.emailSignUp(this.user.email, this.user.password) // sign up User
+      this.auth.emailSignUp(this.user.email, this.user.password, this.db.loggedInUser != null && this.db.loggedInUser != undefined && this.db.loggedInUser.type == 'מנהל') // sign up User
         .then(res => {
           if (this.signUpError == true)// condition to prevent error
             return;
@@ -180,6 +181,7 @@ export class RegistrationFormComponent {
           if(this.db.loggedIn == 'true' && this.db.loggedInUser.type == 'מנהל')
               this.router.navigate(['manager']);
           else {
+            console.log('signing in...')
             this.signIn(this.user.email, this.user.password);
           }
         })

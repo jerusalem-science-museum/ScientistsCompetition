@@ -57,7 +57,7 @@ export class ProjectUploadScreenComponent implements OnInit {
       "יש מוצר סופי"
     ];
     this.project = new Project();
-    this.project.inCompetition = false;
+    this.project.inCompetition = true;
     this.project.date = new Date();
     this.project.creation_year = this.project.date.getFullYear();
     this.validateForm();
