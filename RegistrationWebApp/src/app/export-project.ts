@@ -3,9 +3,13 @@ import { Mentor } from './mentor';
 
 export class ExportProject {
     constructor(
+        public id?: string,
         public First_student_email?: string,
+        public First_student_name?: string,
         public Second_student_email?: string,
+        public Second_student_name?: string,
         public Third_student_email?: string,
+        public Third_student_name?: string,
         public Project_name?: string,
         public School_representative_email?: string,
         public Field?: string,

@@ -308,7 +308,7 @@ export class TableComponent implements OnInit {
 
 
   handleChecker() {
-    this.obj = "<div class='table-responsive'><table class='table table-striped table-bordered' id='myTable'><thead><tr><th></th><th>שם פרוייקט</th><th>שלי?</th><th>איש קשר</th><th>פריט עבודה נוכחי</th>" +
+    this.obj = "<div class='table-responsive'><table class='table table-striped table-bordered' id='myTable'><thead><tr><th></th><th>מזהה</th><th>שם פרוייקט</th><th>שלי?</th><th>איש קשר</th><th>פריט עבודה נוכחי</th>" +
       "<th>קובץ המלצה נוכחי</th><th>הערות למיון</th></tr></thead><tbody>";
     var myProjects = this.db.projectsList.filter((project) => (project.checkerMail != undefined && project.checkerMail.indexOf(this.db.loggedInUser.email) >= 0));
     var otherProjects = this.db.projectsList.filter((project) => (project.checkerMail == undefined || project.checkerMail.indexOf(this.db.loggedInUser.email) < 0));
@@ -316,7 +316,7 @@ export class TableComponent implements OnInit {
     for (var i = 0; i < projects.length; i++) {
       var isMine = (projects[i].checkerMail != undefined && projects[i].checkerMail.indexOf(this.db.loggedInUser.email) >= 0);
       var str = this.router.parseUrl('/viewproject;id=' + projects[i].project_name.replace(/\(/g, "%28").replace(/\)/g, "%29") + '');
-      this.obj += "<tr><td>"+(i+1)+"</td><td><a href=" + str + ">" + projects[i].project_name + "</a></td>" + "<td>" + (isMine ? "כן" : "לא") + "</td>" +
+      this.obj += "<tr><td>"+(i+1)+"</td><td>" + this.makeHash(this.db.projectsList[i].id)+"</td><td><a href=" + str + ">" + projects[i].project_name + "</a></td>" + "<td>" + (isMine ? "כן" : "לא") + "</td>" +
         "<td>" + projects[i].school_contact_mail + "</td>";
       if (projects[i].project_file == null) {
         this.obj += "<td>לא קיים פריט עבודה במערכת</td>"
@@ -338,18 +338,33 @@ export class TableComponent implements OnInit {
     this.checkerRecommendation(1, projects);
   }
 
- 
+  makeHash(str) {
+    var hash = 0, i, chr;
+    if (str.length === 0) return hash;
+    for (i = 0; i < str.length; i++) {
+      chr   = str.charCodeAt(i);
+      hash  = ((hash << 5) - hash) + chr;
+      hash |= 0; // Convert to 32bit integer
+    }
+
+    if (hash < 0) {
+      hash = -hash;
+    }
+    return hash.toString().substr(hash.toString().length - 6, 6);
+  }
 
   handleMaster1() {
     this.createCheckersInputList();
-    this.obj = "<div class='table-responsive'><table class='table table-striped table-bordered' id='myTable'><thead><tr><th></th><th>שם פרוייקט</th><th>תאריך יצירה</th><th>סוג העבודה</th><th>תחום</th><th>חברי צוות</th>" +
+    this.obj = "<div class='table-responsive'><table class='table table-striped table-bordered' id='myTable'><thead><tr><th></th><th>מזהה</th><th>שם פרוייקט</th><th>תאריך יצירה</th><th>סוג העבודה</th><th>תחום</th><th>חברי צוות</th>" +
       "<th>סטאטוס הרשמה (חוסרים)</th><th>איש הקשר</th><th>המלצה</th><th>פריט עבודה נוכחי</th><th>בתחרות</th><th>הקצאת בודק</th><th>שיוך בודק</th><th>יש הערות?</th><th>מחק פרוייקט</th></tr></thead><tbody>";
+    
+    this.db.projectsList
     for (var i = 0; i < this.db.projectsList.length; i++) {
       this.createTeam(i);
       this.ProjectStatusForTeacher(i, true);
       var str = this.router.parseUrl('/viewproject;id=' + this.db.projectsList[i].project_name.replace(/\(/g, "%28").replace(/\)/g, "%29") + '');
       var str2 = this.router.parseUrl('/registrationForm;email='+this.db.projectsList[i].school_contact_mail+ '');
-      this.obj += "<tr class="+i+"><td>"+(i+1)+"</td><td><a href=" + str + ">" + this.db.projectsList[i].project_name + "</a></td>";
+      this.obj += "<tr class="+i+"><td>"+(i+1)+"</td><td>"+this.makeHash(this.db.projectsList[i].id)+"</td><td><a href=" + str + ">" + this.db.projectsList[i].project_name + "</a></td>";
       var date = new Date(this.db.projectsList[i].date);
       var teacher = this.teacherList.find(x => x.email == this.db.projectsList[i].school_contact_mail);
       var teacherName = teacher == undefined ? this.db.projectsList[i].school_contact_mail : teacher.name;
@@ -512,8 +527,12 @@ export class TableComponent implements OnInit {
   }
 
   exportProjectsToExcel() {
-    this.db.exportProjects();
-    this.excelService.exportAsExcelFile(JSON.parse(JSON.stringify(this.db.proj_exp)), 'projects');
+    this.db.exportProjects().then(() => {
+      console.log(this.db.proj_exp[0].id);
+      console.log(this.db.proj_exp[0].First_student_email);
+      console.log(this.db.proj_exp[0].First_student_name);
+      this.excelService.exportAsExcelFile(JSON.parse(JSON.stringify(this.db.proj_exp)), 'projects');
+    });
   }
 
 

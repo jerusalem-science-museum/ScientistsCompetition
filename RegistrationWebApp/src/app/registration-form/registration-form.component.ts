@@ -168,6 +168,7 @@ export class RegistrationFormComponent {
 
     if (this.userform.valid) { // no validate errors
       this.signUpError = false;
+      this.user.email = this.user.email.toLowerCase();
       this.auth.emailSignUp(this.user.email, this.user.password, this.db.loggedInUser != null && this.db.loggedInUser != undefined && this.db.loggedInUser.type == 'מנהל') // sign up User
         .then(res => {
           if (this.signUpError == true)// condition to prevent error

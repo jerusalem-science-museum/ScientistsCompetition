@@ -60,8 +60,36 @@ export class DatabaseService {
     this.dataCollections.doc(user.uid).set(JSON.parse(JSON.stringify(noPasswordUser))).then(() => console.log('User added!')).catch((error) => console.log(error));
   }
 
+  private lowerCase(s : string) {
+    if (s != undefined) {
+      return s.toLowerCase();
+    } else {
+      return undefined;
+    }
+  }
+
+  private lowerCaseMails(project : Project) {
+    project.user1mail = this.lowerCase(project.user1mail);
+    project.user2mail = this.lowerCase(project.user2mail);
+    project.user3mail = this.lowerCase(project.user3mail);
+    project.school_contact_mail = this.lowerCase(project.school_contact_mail);
+
+    if (project.mentor1 != undefined) {
+      project.mentor1.email = this.lowerCase(project.mentor1.email);
+    }
+
+    if (project.mentor2 != undefined) {
+      project.mentor2.email = this.lowerCase(project.mentor2.email);
+    }
+
+    if (project.mentor3 != undefined) {
+      project.mentor3.email = this.lowerCase(project.mentor3.email);
+    }
+  }
+
   //adds all info that was provided through the project-upload form to project object and ads it to the firebase DB
   public addProjectToDB(project: Project) {
+    this.lowerCaseMails(project);
     this.projectCollections.add(JSON.parse(JSON.stringify(project)));
   }
   //sets competition settings into db
@@ -109,6 +137,7 @@ export class DatabaseService {
   updateProjectListing(project_name: string) {
     for (var i = 0; i < this.projectsList.length; i++) {
       if (this.projectsList[i].project_name == project_name) {
+        this.lowerCaseMails(this.projectsList[i]);
         this.listingDoc = this.projectCollections.doc(`${this.projectsList[i].id}`); //takes the listing that will be updated by the doc.id (listing's id)
         this.listingDoc.update(JSON.parse(JSON.stringify(this.project)));
       }
@@ -149,6 +178,21 @@ export class DatabaseService {
 
     return this.observableUsers;
   }
+
+  transformUsers() {
+
+    this.getMetaData().first().subscribe(usersList => {
+      for (var i = 0; i < usersList.length; i++) {
+        var user = usersList[i];
+        let noPasswordUser = {...user};
+        delete noPasswordUser.password;
+        console.log(noPasswordUser.uid);
+        console.log(JSON.parse(JSON.stringify(noPasswordUser)));
+        this.dataCollections.doc(noPasswordUser.uid).set(JSON.parse(JSON.stringify(noPasswordUser)));
+      }
+    })
+  }
+
   //after reciving the metadata from firebase - set it to the userslist variable
   setMetaData() {
     this.getMetaData().subscribe(res => {
@@ -201,15 +245,15 @@ export class DatabaseService {
     return new Promise((resolve, reject) => {
       this.dataCollections.valueChanges().subscribe(collection => {
         for (var i = 0; i < collection.length; i++) { //find participantes email's and puts them in array
-          if (collection[i].email === email1) {
+          if (email1 != undefined && this.lowerCase(collection[i].email) === this.lowerCase(email1)) {
             this.selectedUser[0] = collection[i];
             this.existsUsers[0] = true;
           }
-          else if (collection[i].email === email2) {
+          else if (email2 != undefined && this.lowerCase(collection[i].email) === this.lowerCase(email2)) {
             this.selectedUser[1] = collection[i];
             this.existsUsers[1] = true;
           }
-          else if (collection[i].email === email3) {
+          else if (email3 != undefined && this.lowerCase(collection[i].email) === this.lowerCase(email3)) {
             this.selectedUser[2] = collection[i];
             this.existsUsers[2] = true;
           }
@@ -223,7 +267,7 @@ export class DatabaseService {
     return new Promise((resolve, reject) => {
       this.dataCollections.valueChanges().subscribe(collection => {
         for (var i = 0; i < collection.length; i++) { //find participantes email's and puts them in array
-          if (collection[i].email === email1) {
+          if (email1 != undefined && collection[i].email.toLowerCase() === email1.toLowerCase()) {
             resolve(collection[i].firstName + " " + collection[i].lastName);
           }
         }
@@ -283,10 +327,27 @@ export class DatabaseService {
       this.user_exp[i].Password = this.usersList[i].password;
     }
   }
+
+  makeHash(str) {
+    var hash = 0, i, chr;
+    if (str.length === 0) return hash;
+    for (i = 0; i < str.length; i++) {
+      chr   = str.charCodeAt(i);
+      hash  = ((hash << 5) - hash) + chr;
+      hash |= 0; // Convert to 32bit integer
+    }
+
+    if (hash < 0) {
+      hash = -hash;
+    }
+    return hash.toString().substr(hash.toString().length - 6, 6);
+  }
 //exports projects data from db into excel sheet
   exportProjects() {
+    var allPromises : Array<Promise<any>> = [];
     for (var i = 0; i < this.projectsList.length; i++) {
       this.proj_exp[i] = new ExportProject();
+      this.proj_exp[i].id = this.makeHash(this.projectsList[i].id);
       this.proj_exp[i].Advantages = this.projectsList[i].advantages;
       this.proj_exp[i].Background = this.projectsList[i].background;
       this.proj_exp[i].Checker_comments = this.projectsList[i].check;
@@ -311,8 +372,31 @@ export class DatabaseService {
       this.proj_exp[i].target = this.projectsList[i].target;
       this.proj_exp[i].Third_student_email = this.projectsList[i].user3mail;
       this.proj_exp[i].Type = this.projectsList[i].type;
+
+      var appendPromises = ((currIndex) => {
+        var promise1 : Promise<any> = this.getUserName(this.projectsList[i].user1mail).then(name => {
+          console.log('Got name: ' + name);
+          this.proj_exp[currIndex].First_student_name = name;
+          console.log('Proj exp: ' + this.proj_exp[currIndex].id);
+        });
+
+        var promise2 : Promise<any> = this.getUserName(this.projectsList[i].user2mail).then(name => {
+          this.proj_exp[currIndex].Second_student_name = name;
+        });
+
+        var promise3 : Promise<any> = this.getUserName(this.projectsList[i].user3mail).then(name => {
+          this.proj_exp[currIndex].Third_student_name = name;
+        });
+
+        allPromises.push(promise1);
+        allPromises.push(promise2);
+        allPromises.push(promise3);
+      });
+
+      appendPromises(i);
     }
 
+    return Promise.all(allPromises);
   }
 
 
