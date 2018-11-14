@@ -196,8 +196,8 @@
               [(ngModel)]="project.background" name="background"></textarea>
             <div *ngIf="project.type == 'עבודה טכנולוגית'">
               <label class="reg">מוצרים דומים הקיימים בשוק</label>
-              <textarea [readonly]="this.db.loggedInUser.type == 'בודק'" maxlength="800" class="data" rows="6" cols="80" id="background"
-                [(ngModel)]="project.products" name="background"></textarea>
+              <textarea [readonly]="this.db.loggedInUser.type == 'בודק'" maxlength="800" class="data" rows="6" cols="80" id="products"
+                [(ngModel)]="project.products" name="products"></textarea>
             </div>
 
             <div *ngIf="project.type == 'עבודה טכנולוגית'">
