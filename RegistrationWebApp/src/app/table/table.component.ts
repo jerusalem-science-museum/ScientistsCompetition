@@ -308,7 +308,7 @@ export class TableComponent implements OnInit {
 
 
   handleChecker() {
-    this.obj = "<div class='table-responsive'><table class='table table-striped table-bordered' id='myTable'><thead><tr><th></th><th>מזהה</th><th>שם פרוייקט</th><th>שלי?</th><th>איש קשר</th><th>פריט עבודה נוכחי</th>" +
+    this.obj = "<div class='table-responsive'><table class='table table-striped table-bordered' id='myTable'><thead><tr><th></th><th>מזהה</th><th>שם פרוייקט</th><th>שלי?</th><th>איש קשר</th><th>חברי צוות</th><th>פריט עבודה נוכחי</th>" +
       "<th>קובץ המלצה נוכחי</th><th>הערות למיון</th></tr></thead><tbody>";
     var myProjects = this.db.projectsList.filter((project) => (project.checkerMail != undefined && project.checkerMail.indexOf(this.db.loggedInUser.email) >= 0));
     var otherProjects = this.db.projectsList.filter((project) => (project.checkerMail == undefined || project.checkerMail.indexOf(this.db.loggedInUser.email) < 0));
@@ -318,6 +318,8 @@ export class TableComponent implements OnInit {
       var str = this.router.parseUrl('/viewproject;id=' + projects[i].project_name.replace(/\(/g, "%28").replace(/\)/g, "%29") + '');
       this.obj += "<tr><td>"+(i+1)+"</td><td>" + this.makeHash(this.db.projectsList[i].id)+"</td><td><a href=" + str + ">" + projects[i].project_name + "</a></td>" + "<td>" + (isMine ? "כן" : "לא") + "</td>" +
         "<td>" + projects[i].school_contact_mail + "</td>";
+      this.createTeamByProject(projects[i]);
+      this.obj += "<td>" + this.team + "</td>";
       if (projects[i].project_file == null) {
         this.obj += "<td>לא קיים פריט עבודה במערכת</td>"
       }
@@ -421,6 +423,25 @@ export class TableComponent implements OnInit {
       } 
       if (currentProj.user3mail!=undefined && this.db.usersList[i].email==currentProj.user3mail){
         str = this.router.parseUrl('/registrationForm;email=' + this.db.projectsList[index].user3mail + '');
+        this.team +="<a href=" + str + ">"+this.db.usersList[i].firstName+" "+this.db.usersList[i].lastName+": "+currentProj.user3mail+"</a></br>";
+      }  
+    }
+  }
+
+  createTeamByProject(project) {
+    this.team = "";
+    var str,currentProj = project;
+    for(var i=0;i<this.db.usersList.length;i++){
+      if (currentProj.user1mail!=undefined && this.db.usersList[i].email==currentProj.user1mail){
+        str = this.router.parseUrl('/registrationForm;email=' + currentProj.user1mail + '');
+        this.team +="<a href=" + str + ">" +this.db.usersList[i].firstName+" "+this.db.usersList[i].lastName+": "+currentProj.user1mail +"</a></br>";
+      } 
+      if (currentProj.user2mail!=undefined && this.db.usersList[i].email==currentProj.user2mail){
+        str = this.router.parseUrl('/registrationForm;email=' + currentProj.user2mail + '');
+        this.team +="<a href=" + str + ">"+this.db.usersList[i].firstName+" "+this.db.usersList[i].lastName+": "+currentProj.user2mail+"</a></br>";
+      } 
+      if (currentProj.user3mail!=undefined && this.db.usersList[i].email==currentProj.user3mail){
+        str = this.router.parseUrl('/registrationForm;email=' + currentProj.user3mail + '');
         this.team +="<a href=" + str + ">"+this.db.usersList[i].firstName+" "+this.db.usersList[i].lastName+": "+currentProj.user3mail+"</a></br>";
       }  
     }

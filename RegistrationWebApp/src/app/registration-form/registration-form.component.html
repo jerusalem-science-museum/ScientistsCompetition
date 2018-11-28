@@ -265,7 +265,7 @@
                 <div *ngIf="this.db.loggedIn != 'true' || this.manager_mode=='new'">
                     <button id="Calculate" class="btnsign" (click)="registerUser()">הירשם והמשך לשלב הבא</button>
                 </div>
-                <div *ngIf="this.db.loggedIn == 'true' && this.manager_mode!='new'">
+                <div *ngIf="this.db.loggedIn == 'true' && this.manager_mode!='new' && this.db.loggedInUser.type != 'בודק' && this.db.loggedInUser.type != 'מורה'">
                     <button id="Calculate" class="btnsign" (click)="updateInfo()">עדכן פרטים</button>
                 </div>
                 <div class="col-sm-6 form-group hideError" [hidden]="!signUpError">

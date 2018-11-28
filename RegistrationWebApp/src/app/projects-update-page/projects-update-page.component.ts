@@ -137,10 +137,10 @@ export class ProjectsUpdatePageComponent implements OnInit {
           }
           else if (this.db.loggedInUser.type == 'בודק') {
             for (var i = 0; i < this.db.projectsList.length; i++) {
-              if (this.db.projectsList[i].checkerMail && this.db.projectsList[i].checkerMail.indexOf(this.db.loggedInUser.email) >= 0) {
+              //if (this.db.projectsList[i].checkerMail && this.db.projectsList[i].checkerMail.indexOf(this.db.loggedInUser.email) >= 0) {
                 this.user_projects[j++] = this.db.projectsList[i].project_name;
                 this.user_project_objects.push(this.db.projectsList[i]);
-              }
+              //}
             }
           }
 
